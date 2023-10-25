@@ -47,12 +47,9 @@ int decode(unsigned short instr, unsigned short *opcode, char *mnem, unsigned sh
         strcpy(mnem, "JNEG  ");
     } else if (*opcode == 0xE) {
         strcpy(mnem, "JZERO ");
-    } else if (*opcode == 0xF) {
-        strcpy(mnem, "HALT  ");
     } else {
-        strcpy(mnem, "UNKNOWN");
+        strcpy(mnem, "HALT  ");
     }
-
     return m;
 }
 
