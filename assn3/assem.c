@@ -209,27 +209,15 @@ void printMemory() {
     }
     printf("\n");
 
-    for (int i = 512; i < 612; i++){
-        if ((i - 512) % 10 == 0){
-            printf("%d ", i * 2);
+    int print_index = 1024;
+    for(int i = 512; i < 612; i += 10) {
+        printf("%4d ", print_index);
+        for(int j = i; j < i + 10 && j < 612; ++j) {
+            printf("%04x ", memory[j]);
         }
-        printf("%04x ", memory[i]);
-        if (((i + 1) - 512) % 10 == 0){
-            printf("\n");
-        }
-
+        printf("\n");
+        print_index += 10; // Increment print index for next line
     }
-
-    for (int i = DATA_SECTION_START / 2; i < (DATA_SECTION_START / 2) + 100; i++) {
-        if (i % 10 == 0) {
-            if (i > DATA_SECTION_START / 2) {
-                printf("\n");
-            }
-            printf("%04d ", i * 2);
-        }
-        printf("%04x ", memory[i]);
-    }
-    printf("\n");
 }
 
 int main() {
