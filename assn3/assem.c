@@ -92,86 +92,77 @@ void executeVSMLProgram() {
         
         switch (opCode) {
             case EOC: {
-                // Handle the EOC operation
-                running = 0;
+                running = 0; //STOP
                 break;
             }
             case LOAD: {
-                // Handle the LOAD operation
-                accumulator = memory[operand];
+                accumulator = memory[operand]; //put memory value to accumulator
                 break;
             }
             case STORE: {
-                // Handle the STORE operation
-                memory[operand] = accumulator;
+                memory[operand] = accumulator; //put accumulator value to memory
                 break;
             }
             case READ: {
-                // Handle the READ operation
-                char binaryInput[17]; // Buffer for binary input
+                char binaryInput[17]; //for binary input
                 scanf("%16s", binaryInput); // Read 16-bit binary number as string
-                memory[operand] = bin2num(binaryInput);
+                memory[operand] = bin2num(binaryInput); //convert to num and put into memory
                 break;
             }
             case WRITE: {
-                printf("%d\n", memory[operand]);
+                printf("%d\n", memory[operand]); //print value
                 break;
             }
             case ADD: {
-                // Handle the ADD operation
-                accumulator += memory[operand];
+                accumulator += memory[operand]; //add accumulator to mem value
                 break;
             }
             case SUB: {
-                // Handle the SUB operation
-                accumulator -= memory[operand];
+                accumulator -= memory[operand]; //sub mem value from accumulator
                 break;
             }
             case MUL: {
-                // Handle the MUL operation
-                accumulator *= memory[operand];
+                accumulator *= memory[operand]; //multiply mem value to accumulator
                 break;
             }
             case DIV: {
-                // Handle the DIV operation
-                accumulator /= memory[operand];
+                accumulator /= memory[operand]; //div accumulator by mem value
                 break;
             }
             case MOD: {
-                // Handle the MOD operation
-                unsigned short remainder = accumulator % memory[operand];
-                accumulator = remainder;
+                unsigned short remainder = accumulator % memory[operand]; //find remainder of accumulator/mem value
+                accumulator = remainder; //save remainder to accumulator
                 break;
             }
             case NEG: {
-                accumulator *= -1;
+                accumulator *= -1; //negate the accumulator value
                 break;
             }
             case NOP: {
-                break;
+                break; //do nothing
             }
             case JUMP: {
-                instructionCounter = operand;
+                instructionCounter = operand; //jump to operand
+                instructionCounter--; //subl IC so that the operand stays the same when it increments after the switch cases.
                 break;
-                instructionCounter--;
             }
             case JNEG: {
-                if (accumulator & 0x8000){
+                if (accumulator & 0x8000){ //if accumulator is negative (8000 = 1000 0000 0000 0000)
                     instructionCounter = operand;
                 }
-                instructionCounter--;
+                instructionCounter--; //subl IC so that the operand stays the same when it increments after the switch cases.
                 break;
             }
             case JZERO: {
-                if (accumulator == 0){
+                if (accumulator == 0){ //if accumulator is zero
                     instructionCounter = operand;
                 }
-                instructionCounter--;
+                instructionCounter--; //subl IC so that the operand stays the same when it increments after the switch cases.
                 break;
             }
             case HALT: {
                 // Handle the HALT operation
-                running = 0;
+                running = 0; //stop
                 break;
             }
             default: {
@@ -218,13 +209,15 @@ void printMemory() {
     }
     printf("\n");
 
-    for (int i = 512; i < 562; i++){
-        if ((i * 2 - 1024) % 10 == 0){
+    for (int i = 512; i < 612; i++){
+        if ((i - 512) % 10 == 0){
             printf("%d ", i * 2);
         }
-        if (((i + 1) * 2 - 1024) % 10 == 0){
+        printf("%04x ", memory[i]);
+        if (((i + 1) - 512) % 10 == 0){
             printf("\n");
         }
+
     }
 
     for (int i = DATA_SECTION_START / 2; i < (DATA_SECTION_START / 2) + 100; i++) {
@@ -249,7 +242,7 @@ int main() {
     // Execute the VSML program
     executeVSMLProgram();
 
-    // Print memory contents for verification
+    //dump
     printMemory();
 
     return 0;
