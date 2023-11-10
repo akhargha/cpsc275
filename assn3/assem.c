@@ -1,3 +1,9 @@
+/*
+* CPSC 275 Assignment 3 - VSM Program
+* This program simulates a VSM
+* @author: Anupam Khargharia
+* @version: 1.0
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -178,7 +184,7 @@ void executeVSMLProgram() {
     }
 }
 
-// Function to print the memory contents
+// Function to print the memory
 void printMemory() {
     printf("REGISTERS:\n");
     printf("accumulator          0x%04x\n", accumulator);
@@ -220,6 +226,7 @@ void printMemory() {
     }
 }
 
+//main function that starts the program
 int main() {
     // Initialize memory with zeros
     memset(memory, 0, sizeof(memory));
