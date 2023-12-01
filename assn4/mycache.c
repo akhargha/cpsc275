@@ -13,6 +13,23 @@ struct Parameters {
     int evictions;
 };
 
+// Struct for a line in a cache set
+struct Line {
+    int valid;
+    unsigned long long int tag;
+    unsigned long long lastUsed; // Timestamp for LRU
+};
+
+// Struct for a cache set
+struct Set {
+    struct Line *lines;
+};
+
+// Struct for the cache
+struct Cache {
+    struct Set *sets;
+};
+
 int main(int argc, char **argv) {
     struct Parameters param = {0, 0, 0, 0, 0, 0};
     char *traceFile;
@@ -42,4 +59,6 @@ int main(int argc, char **argv) {
         printf("Missing required arguments\n");
         exit(1);
     }
+
+    int S = (1 << param.s);
 }
