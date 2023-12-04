@@ -3,11 +3,15 @@
 #include <stdio.h>
 #include <math.h>
 
+// Global clock for LRU implementation
+int globalClock = 0;
+
 //Cache parameters
 struct Parameters {
-    int s; // Number of set index bits
-    int E; // number of lines per set
-    int b; // Number of block bits
+    int s; // set index bits
+    int E; // lines per set
+    int b; //block bits
+    int v; //verbose or not
     int hits;
     int misses;
     int evictions;
@@ -30,12 +34,19 @@ struct Cache {
     struct Set *sets;
 };
 
+// Function to initialize the cache
+struct Cache initializeCache(int S, int E);
+
+// Function to simulate cache access
+void accessCache(struct Cache *cache, struct Parameters *param, unsigned long long int address);
+
+// Initialize the cache using the input param from command line. Then access all elements using the accessCache function and print.
 int main(int argc, char **argv) {
-    struct Parameters param = {0, 0, 0, 0, 0, 0};
+    struct Parameters param = {0, 0, 0, 0, 0, 0, 0};
     char *traceFile;
     char option;
 
-    while ((option = getopt(argc, argv, "s:E:b:t:")) != -1) {
+    while ((option = getopt(argc, argv, "s:E:b:t:v")) != -1) {
         switch (option) {
             case 's':
                 param.s = atoi(optarg);
@@ -45,6 +56,9 @@ int main(int argc, char **argv) {
                 break;
             case 'b':
                 param.b = atoi(optarg);
+                break;
+            case 'v':
+                param.v = 1;
                 break;
             case 't':
                 traceFile = optarg;
@@ -61,4 +75,99 @@ int main(int argc, char **argv) {
     }
 
     int S = (1 << param.s);
+
+    struct Cache cache = initializeCache(S, param.E);
+
+    FILE *file = fopen(traceFile, "r");
+    if (file == NULL) {
+        printf("Could not open trace file\n");
+        exit(1);
+    }
+
+    char operation;
+    int size;
+    unsigned long long int address;
+    while (fscanf(file, " %c %llx,%d", &operation, &address, &size) == 3) {
+            if (param.v==1){
+                printf("\n %c, %llx, %d ", operation, address, size);
+            }
+            accessCache(&cache, &param, address);
+            if (operation == 'M') {
+                accessCache(&cache, &param, address); // M operation is a load followed by a store so do it twice
+            }
+    }
+
+    fclose(file);
+    if (param.v==1){
+        printf("\n");
+    }
+    printf("hits:%d misses:%d evictions:%d\n", param.hits, param.misses, param.evictions);
+
+    return 0;
 }
+
+// Function to initialize the cache
+struct Cache initializeCache(int S, int E) {
+    struct Cache cache;
+    cache.sets = (struct Set *) malloc(S * sizeof(struct Set));
+    for (int i = 0; i < S; i++) {
+        cache.sets[i].lines = (struct Line *) malloc(E * sizeof(struct Line));
+        for (int j = 0; j < E; j++) {
+            cache.sets[i].lines[j].valid = 0;
+            cache.sets[i].lines[j].tag = 0;
+        }
+    }
+    return cache;
+}
+
+// Function to simulate cache access
+void accessCache(struct Cache *cache, struct Parameters *param, unsigned long long int address) {
+    int tagSize = 64 - (param->s + param->b);
+    unsigned long long int tag = address >> (param->s + param->b);
+    int setIndex = (address << tagSize) >> (tagSize + param->b);
+    struct Set set = cache->sets[setIndex];
+
+    int hit = 0;
+    int leastRecentlyUsedIndex = 0;
+    unsigned long long oldestTimestamp = ~0ULL; // max possible value
+
+    for (int i = 0; i < param->E; i++) {
+        if (set.lines[i].valid) {
+            if (set.lines[i].tag == tag) {
+                hit = 1;
+                param->hits++;
+                set.lines[i].lastUsed = globalClock; // Update timestamp on hit
+                if (param->v==1){
+                    printf("hit ");
+                }
+                break;
+            }
+            if (set.lines[i].lastUsed < oldestTimestamp) {
+                oldestTimestamp = set.lines[i].lastUsed;
+                leastRecentlyUsedIndex = i;
+            }
+        } else if (oldestTimestamp == ~0ULL) {
+            leastRecentlyUsedIndex = i; // If the line is invalid, it's a candidate for eviction
+        }
+    }
+
+    if (!hit) {
+        param->misses++;
+        if (param->v==1){
+            printf("miss ");
+        }
+        // Replace the least recently used line
+        set.lines[leastRecentlyUsedIndex].valid = 1;
+        set.lines[leastRecentlyUsedIndex].tag = tag;
+        set.lines[leastRecentlyUsedIndex].lastUsed = globalClock;
+        // If an eviction happens
+        if (oldestTimestamp != ~0ULL) {
+            param->evictions++;
+            if (param->v==1){
+                printf("eviction ");
+            }
+        }
+    }
+    globalClock++; // Increment global clock after each memory access
+}
+
