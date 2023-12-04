@@ -1,6 +1,13 @@
+/**
+ * @author: Anupam Khargharia
+ * Assn 4: CPSC 275
+ * C Program that simulates the behaviour of a cache memory
+ * Version: 1.0
+*/
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <stdio.h>
 #include <math.h>
 
 // Global clock for LRU implementation
@@ -8,10 +15,10 @@ int globalClock = 0;
 
 //Cache parameters
 struct Parameters {
+    int v; //verbose or not
     int s; // set index bits
     int E; // lines per set
     int b; //block bits
-    int v; //verbose or not
     int hits;
     int misses;
     int evictions;
@@ -48,17 +55,17 @@ int main(int argc, char **argv) {
 
     while ((option = getopt(argc, argv, "s:E:b:t:v")) != -1) {
         switch (option) {
-            case 's':
+            case 's': //set index bits
                 param.s = atoi(optarg);
                 break;
-            case 'E':
+            case 'E': // lines per set
                 param.E = atoi(optarg);
                 break;
-            case 'b':
+            case 'b': //block bits
                 param.b = atoi(optarg);
                 break;
             case 'v':
-                param.v = 1;
+                param.v = 1; //verbose or not
                 break;
             case 't':
                 traceFile = optarg;
@@ -69,6 +76,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    //invalid Cache
     if (param.s == 0 || param.E == 0 || param.b == 0 || traceFile == NULL) {
         printf("Missing required arguments\n");
         exit(1);
