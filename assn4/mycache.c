@@ -1,14 +1,14 @@
 /**
  * @author: Anupam Khargharia
  * Assn 4: CPSC 275
- * C Program that simulates the behaviour of a cache memory
+ * C Program that simulates the behaviour of a cache memory (Verbose also included)
  * Version: 1.0
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <math.h>
+#include <unistd.h>
 
 // Global clock for LRU implementation
 int globalClock = 0;
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
             }
             accessCache(&cache, &param, address);
             if (operation == 'M') {
-                accessCache(&cache, &param, address); // M operation is a load followed by a store so do it twice
+                accessCache(&cache, &param, address); // M operation so do it twice
             }
     }
 
