@@ -86,8 +86,8 @@ int main(int argc, char **argv) {
 
     struct Cache cache = initializeCache(S, param.E);
 
-    FILE *file = fopen(traceFile, "r");
-    if (file == NULL) {
+    FILE *fp = fopen(traceFile, "r");
+    if (fp == NULL) {
         printf("Could not open trace file\n");
         exit(1);
     }
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     char operation;
     int size;
     unsigned long long int address;
-    while (fscanf(file, " %c %llx,%d", &operation, &address, &size) == 3) {
+    while (fscanf(fp, " %c %llx,%d", &operation, &address, &size) == 3) {
             if (param.v==1){
                 printf("\n %c, %llx, %d ", operation, address, size);
             }
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
             }
     }
 
-    fclose(file);
+    fclose(fp);
     if (param.v==1){
         printf("\n");
     }
